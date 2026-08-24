@@ -1,0 +1,44 @@
+{
+    "manifest_version": 3,
+
+    "name": "Chevy Best Discount",
+
+    "version": "9.1.0",
+
+    "description": "Organiza veículos Chevrolet pelo maior desconto.",
+
+    "permissions": [
+        "storage"
+    ],
+
+    "host_permissions": [
+        "https://www.chevrolet.com/*"
+    ],
+
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.chevrolet.com/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "run_at": "document_start"
+        }
+    ],
+
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "page-bridge.js"
+            ],
+            "matches": [
+                "https://www.chevrolet.com/*"
+            ]
+        }
+    ],
+
+    "action": {
+        "default_title": "Chevy Best Discount"
+    }
+}
