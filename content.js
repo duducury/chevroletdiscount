@@ -604,6 +604,42 @@
                                 );
 
 
+                        /*
+                         * Veículos sem preço divulgado (a página
+                         * mostra "Contact Dealer" no lugar do
+                         * valor) às vezes vêm da API com um preço
+                         * "placeholder" bem baixo (ex: $0, $1) em
+                         * vez de ausente. Isso fazia o cálculo
+                         * msrp - finalPrice parecer um desconto de
+                         * quase 100%.
+                         *
+                         * Nenhum desconto real de concessionária
+                         * chega perto disso, então qualquer "preço
+                         * final" abaixo de $1.000 ou menor que 40%
+                         * do MSRP é tratado como preço não
+                         * divulgado — o veículo não entra no
+                         * ranking de desconto nem recebe badge.
+                         */
+
+                        const looksLikeRealPrice =
+                            Number.isFinite(
+                                finalPrice
+                            ) &&
+                            finalPrice >= 1000 &&
+                            (
+                                finalPrice /
+                                msrp
+                            ) >= 0.4;
+
+
+                        if (
+                            !looksLikeRealPrice
+                        ) {
+
+                            return;
+                        }
+
+
                         const discount =
                             msrp -
                             finalPrice;
@@ -1289,6 +1325,43 @@
                     badge.remove();
                 }
             );
+
+
+        /*
+         * Segunda camada de proteção: se o card mostra
+         * "Contact Dealer" (ou variações) no lugar do preço,
+         * não mostra desconto nenhum, mesmo que os dados vindos
+         * da API por algum motivo tenham passado no filtro de
+         * fetchAllVehicles().
+         */
+
+        const cardText =
+            (
+                card.innerText ||
+                ""
+            ).toLowerCase();
+
+
+        const priceNotDisclosed =
+            cardText.includes(
+                "contact dealer"
+            ) ||
+
+            cardText.includes(
+                "call for price"
+            ) ||
+
+            cardText.includes(
+                "contact us for price"
+            );
+
+
+        if (
+            priceNotDisclosed
+        ) {
+
+            return;
+        }
 
 
         const badge =
